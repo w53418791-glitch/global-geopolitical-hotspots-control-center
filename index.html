@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>全球政经洞察总控台</title>
+<style>
+  :root{
+    --bg:#F7F5F0; --panel:#FFFFFF; --ink:#1F2933; --muted:#5F6B76; --line:#E4E1D8;
+    --accent:#9E1B1E;
+  }
+  html{font-size:17px;}
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{height:100%;}
+  body{font-family:"Microsoft YaHei UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+       background:var(--bg); color:var(--ink); overflow:hidden; position:relative;
+       display:flex; flex-direction:column;}
+
+  .hdr{display:flex; align-items:center; justify-content:space-between;
+       padding:0.8rem 1.6rem 0.55rem; flex:none; gap:1rem;}
+  .hdr h1{font-size:1.5rem; font-weight:700; letter-spacing:.14em; color:var(--accent);}
+  .hdr .sub{font-size:.8rem; color:var(--muted); margin-top:.3rem; letter-spacing:.04em;}
+
+  .fsctl{display:flex; align-items:center; gap:.35rem; background:rgba(255,255,255,.93);
+         border:1px solid var(--line); border-radius:999px; padding:.22rem .5rem; flex:none;
+         box-shadow:0 1px 4px rgba(31,41,51,.08);}
+  .fsctl button{font:bold 1rem/1 "Segoe UI",system-ui,sans-serif; color:var(--ink); background:#F1EFE8;
+                border:1px solid var(--line); border-radius:999px; width:1.7rem; height:1.7rem;
+                cursor:pointer; display:flex; align-items:center; justify-content:center;}
+  .fsctl button:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
+  .fsctl .pct{font-size:.75rem; color:var(--muted); min-width:3.2em; text-align:center;}
+
+  .strip{display:flex; flex-wrap:wrap; gap:.5rem .6rem; padding:0 1.6rem .7rem; flex:none;}
+  .rc{background:rgba(255,255,255,.95); border:1px solid var(--line); border-radius:10px;
+      padding:.55rem .85rem; font-size:.85rem; display:flex; align-items:center; gap:.55rem;
+      box-shadow:0 1px 4px rgba(31,41,51,.06);
+      width:calc((100% - 1.2rem) / 3);}
+  .rc .sw{width:.95rem; height:.95rem; border-radius:4px; border:1px solid rgba(31,41,51,.16); flex:none;}
+  .rc .nm{font-weight:700; flex:none; font-size:.9rem;}
+  .rc .ct{color:var(--muted); font-size:.76rem; line-height:1.35; min-width:0;}
+  .rc .ct i{font-style:normal; color:var(--accent); font-weight:700;}
+
+  #map{flex:1 1 auto; min-height:0; position:relative; z-index:1;}
+
+  #hint{position:absolute; z-index:15; background:rgba(31,41,51,.92); color:#fff; font-size:.82rem;
+        padding:.3rem .75rem; border-radius:999px; pointer-events:none; display:none; white-space:nowrap;
+        letter-spacing:.03em;}
+  #hint b{font-weight:700; margin-right:.35rem;}
+
+  #card{position:absolute; z-index:20; width:23.5rem; background:#FFFFFF; border:1px solid var(--line);
+        border-radius:12px; box-shadow:0 10px 32px rgba(31,41,51,.20); padding:1rem 1.05rem .9rem;
+        display:none; font-size:.92rem; line-height:1.68; cursor:default;}
+  #card .k{display:flex; align-items:baseline; gap:.55rem; border-bottom:1px solid var(--line);
+           padding-bottom:.6rem; margin-bottom:.6rem; padding-right:1.8rem;}
+  #card .k .zh{font-size:1.25rem; font-weight:700;}
+  #card .k .en{font-size:.75rem; color:var(--muted); flex:1;}
+  #card .k .tag{font-size:.72rem; color:#fff; padding:.12rem .55rem; border-radius:999px; white-space:nowrap;}
+  #card .x{position:absolute; top:.6rem; right:.75rem; font-size:1.05rem; color:#9AA3AC; cursor:pointer;
+           line-height:1; padding:.25rem; user-select:none;}
+  #card .x:hover{color:var(--accent);}
+  #card .row{margin-bottom:.5rem; color:var(--ink);}
+  #card .row b{color:var(--muted); font-weight:600; margin-right:.5rem; font-size:.84rem;}
+  #card .lnk{margin-top:.65rem; border-top:1px dashed var(--line); padding-top:.6rem; display:flex;
+             flex-direction:column; gap:.5rem;}
+  #card a{color:#1D5FA8; text-decoration:none; display:flex; gap:.45rem; align-items:baseline; font-size:.92rem;}
+  #card a:hover{text-decoration:underline;}
+  #card .dead{color:#9AA3AC; display:flex; gap:.45rem; align-items:baseline;}
+  #card .dead .st{font-size:.72rem; color:#B08900; white-space:nowrap;}
+  #card .note{color:var(--muted); font-size:.85rem;}
+  #card .sec{font-size:.78rem; color:var(--muted); font-weight:600; margin:.55rem 0 .3rem;}
+  #card .chips{display:flex; flex-wrap:wrap; gap:.35rem;}
+  #card .chip{font-size:.75rem; padding:.12rem .6rem; border-radius:999px; background:#F1EFE8;
+              color:#444441; border:1px solid #E4E1D8;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="brand">
+    <h1>全球政经洞察总控台</h1>
+    <div class="sub">GLOBAL GEOPOLITICAL INSIGHT CONSOLE · 点击重点国查看洞察详情 · 悬停任意区域查看区域热点 · 灰色=未覆盖方向</div>
+  </div>
+  <div class="fsctl">
+    <button id="fsMinus" title="缩小界面文字">A−</button>
+    <span class="pct" id="fsPct">100%</span>
+    <button id="fsPlus" title="放大界面文字">A+</button>
+  </div>
+</div>
+
+<div class="strip" id="side"></div>
+
+<div id="map"></div>
+
+<div id="hint"></div>
+<div id="card"></div>
+
+<script src="echarts.min.js"></script>
+<script src="world_data.js"></script>
+<script>
+const D = WORLD_DATA;
+const RM = D.regionMeta;
+const FOCUS = D.focus;
+
+/* ---------- 界面字号缩放（A−/A+，localStorage 记忆；地图国名同步缩放） ---------- */
+const FS_STEPS = [0.8, 0.9, 1, 1.15, 1.3, 1.5, 1.75];
+let fsIndex = 1;
+try{
+  const saved = parseFloat(localStorage.getItem('wmFontSize'));
+  if (!isNaN(saved) && FS_STEPS.includes(saved)) fsIndex = FS_STEPS.indexOf(saved);
+}catch(e){}
+function applyFS(){
+  const k = FS_STEPS[fsIndex];
+  document.documentElement.style.fontSize = (17 * k) + 'px';
+  document.getElementById('fsPct').textContent = Math.round(k * 100) + '%';
+  try{ localStorage.setItem('wmFontSize', String(k)); }catch(e){}
+  updateLabels();
+}
+document.getElementById('fsMinus').onclick = () => { if (fsIndex > 0){ fsIndex--; applyFS(); } };
+document.getElementById('fsPlus').onclick  = () => { if (fsIndex < FS_STEPS.length - 1){ fsIndex++; applyFS(); } };
+
+echarts.registerMap('world', D.geo);
+
+const chart = echarts.init(document.getElementById('map'), null, {renderer:'canvas'});
+
+const LABEL_BASE = 14;
+const fsK = () => FS_STEPS[fsIndex];
+const zhOf = n => (FOCUS[n] ? FOCUS[n].zh : '');
+
+const regions = Object.entries(D.reg).map(([name, rc]) => {
+  const m = RM[rc] || RM[''];
+  const isFocus = FOCUS.hasOwnProperty(name);
+  return {
+    name,
+    itemStyle: { areaColor: isFocus ? m.deep : m.fill, borderColor:'#FFFFFF', borderWidth: isFocus?1:0.6 },
+    emphasis: { itemStyle: { areaColor: isFocus ? shade(m.deep) : m.deep, borderColor:'#1F2933', borderWidth:1.2 } }
+  };
+});
+
+function shade(hex){
+  const n=parseInt(hex.slice(1),16), r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+  const f=v=>Math.max(0, Math.round(v*0.82));
+  return '#'+((1<<24)+(f(r)<<16)+(f(g)<<8)+f(b)).toString(16).slice(1);
+}
+
+const regionInsights = {
+  US:{n:4, note:'制裁时间线 · 立法分析台 · 算力情报站 · 科学黄金时代'},
+  EU:{n:2, note:'德国政党格局 · 塞尔维亚败选分析'},
+  ME:{n:1, note:'美伊以冲突分析'},
+  RU:{n:0, note:'方向空白 · 待建设'},
+  AS:{n:0, note:'方向空白 · 待建设'},
+  LA:{n:1, note:'巴西卢拉胜选分析'},
+};
+const regionHot = {
+  US:'对华出口管制与关税2.0 · 国会涉华立法 · 中期选举布局',
+  EU:'德国联合政府执政压力 · 极翼政治扩散 · 对华政策摇摆',
+  ME:'美伊战后安排 · 霍尔木兹治理 · 以色列多线后续',
+  RU:'战时经济走向 · 停火谈判窗口 · 亚太方向动向',
+  AS:'东南亚供应链重构 · 南海局势 · 印度大国博弈',
+  LA:'卢拉新任期政策 · 米莱改革外溢 · 近岸外包',
+};
+
+const labelOpt = fs => ({
+  show:true, fontSize:fs, color:'#2A3441', fontWeight:600, formatter: p => zhOf(p.name),
+  textBorderColor:'#FFFFFF', textBorderWidth:2.5
+});
+function currentLabelSize(){
+  const opt = chart.getOption();
+  const z = (opt.geo && opt.geo[0] && opt.geo[0].zoom) || 1;
+  return Math.min(48, Math.round(LABEL_BASE * fsK() * Math.max(1, z * 0.85)));
+}
+function updateLabels(){
+  const ls = currentLabelSize();
+  chart.setOption({ geo:{ label: labelOpt(ls),
+                          emphasis:{ label: Object.assign(labelOpt(ls+1), {fontWeight:700, color:'#1F2933'}) } } });
+}
+
+chart.setOption({
+  geo: {
+    map:'world', roam:true, zoom:1.15, center:[160,22], silent:false,
+    scaleLimit:{min:0.9, max:12},
+    layoutCenter:['50%','50%'],
+    itemStyle:{ areaColor:'#EFEEE8', borderColor:'#FFFFFF', borderWidth:0.6 },
+    label: labelOpt(LABEL_BASE),
+    emphasis:{ itemStyle:{ areaColor:'#D3D1C7' },
+               label: Object.assign(labelOpt(LABEL_BASE+1), {fontWeight:700, color:'#1F2933'}) },
+    regions,
+  },
+  series: [{
+    type:'scatter', coordinateSystem:'geo',
+    data:[{name:'Singapore', value:[103.85,1.29], zh:'新加坡'}],
+    symbolSize:10,
+    itemStyle:{ color: RM.AS.deep, borderColor:'#085041', borderWidth:1.2 },
+    emphasis:{ scale:1.5 },
+    tooltip:{show:false}, zlevel:2,
+  }],
+});
+applyFS();
+
+/* 顶部条占高后容器变矮，layoutSize 按像素动态计算（宽 96% 优先，兼顾高度 2.25 倍上限） */
+function fitMap(){
+  const el = document.getElementById('map');
+  const size = Math.round(Math.min(el.clientWidth * 0.96, el.clientHeight * 2.25));
+  chart.setOption({ geo:{ layoutSize:size } });
+}
+fitMap();
+
+let roamTimer = null;
+chart.on('georoam', () => {
+  if (roamTimer) clearTimeout(roamTimer);
+  roamTimer = setTimeout(updateLabels, 120);
+});
+
+const side = document.getElementById('side');
+side.innerHTML = ['US','EU','RU','ME','AS','LA'].map(c => {
+  const r = regionInsights[c];
+  return `<div class="rc"><span class="sw" style="background:${RM[c].deep}"></span>
+    <span class="nm">${RM[c].zh}</span>
+    <span class="ct"><i>${r.n}</i> 项洞察 · ${r.note}</span></div>`;
+}).join('');
+
+const card = document.getElementById('card');
+const hint = document.getElementById('hint');
+let pinned = false;
+let hoverRegion = false;
+
+let _mx = 0, _my = 0;
+addEventListener('mousemove', e => { _mx = e.clientX; _my = e.clientY; }, true);
+
+function place(x, y){
+  const w = card.offsetWidth, h = card.offsetHeight;
+  let lx = x + 20, ly = y + 18;
+  if (lx + w > innerWidth - 10) lx = Math.max(10, x - w - 18);
+  if (ly + h > innerHeight - 10) ly = Math.max(10, y - h - 14);
+  card.style.left = lx + 'px'; card.style.top = ly + 'px';
+}
+function closeCard(){ pinned = false; card.style.display = 'none'; }
+
+function countryCardHTML(en){
+  const f = FOCUS[en]; const m = RM[f.region];
+  const links = f.links.map(([t,u]) =>
+    u ? `<a href="${u}" target="_blank" rel="noopener">▸ ${t}</a>`
+      : `<span class="dead">▸ ${t}<span class="st">待上线</span></span>`
+  ).join('');
+  return `
+    <span class="x" title="关闭">✕</span>
+    <div class="k"><span class="zh">${f.zh}</span><span class="en">${en}</span>
+      <span class="tag" style="background:${m.deep};">${m.zh}</span></div>
+    <div class="row"><b>政治体制</b>${f.sys}</div>
+    <div class="row"><b>近期热点</b>${f.hot}</div>
+    ${f.links.length ? `<div class="lnk">${links}</div>` : `<div class="lnk"><span class="note">该方向洞察建设中</span></div>`}`;
+}
+function regionCardHTML(rc){
+  const m = RM[rc]; const r = regionInsights[rc] || {n:0, note:''};
+  return `
+    <span class="x" title="关闭">✕</span>
+    <div class="k"><span class="zh">${m.zh}</span><span class="en">REGION</span></div>
+    <div class="row"><b>区域热点</b>${regionHot[rc] || '待接入'}</div>
+    <div class="row"><b>洞察存量</b>${r.n} 项 · ${r.note}</div>
+    <div class="sec">方向内重点国家</div>
+    <div class="chips">${Object.values(FOCUS).filter(v=>v.region===rc).map(v=>`<span class="chip">${v.zh}</span>`).join('') || '<span class="note">待圈定</span>'}</div>`;
+}
+
+function openPinned(html, x, y){
+  card.innerHTML = html;
+  card.style.display = 'block';
+  pinned = true;
+  hoverRegion = false;
+  hint.style.display = 'none';
+  const xx = card.querySelector('.x');
+  if (xx) xx.onclick = closeCard;
+  place(x, y);
+}
+function openHoverRegion(rc){
+  if (pinned) return;
+  card.innerHTML = regionCardHTML(rc);
+  card.style.display = 'block';
+  hoverRegion = true;
+  place(_mx, _my);
+}
+
+function evPos(p){
+  const ev = (p.event && p.event.event) || null;
+  return ev ? [ev.clientX, ev.clientY] : [_mx, _my];
+}
+
+chart.on('click', p => {
+  let en = null;
+  if (p.componentType === 'geo') en = p.name;
+  else if (p.componentType === 'series' && p.data && p.data.name === 'Singapore') en = 'Singapore';
+  if (!en) return;
+  const [x, y] = evPos(p);
+  if (FOCUS[en]) openPinned(countryCardHTML(en), x, y);
+  else { const rc = D.reg[en]; if (rc) openPinned(regionCardHTML(rc), x, y); }
+});
+
+chart.on('mouseover', p => {
+  let en = null;
+  if (p.componentType === 'geo') en = p.name;
+  else if (p.componentType === 'series' && p.data && p.data.name === 'Singapore') en = 'Singapore';
+  if (!en) return;
+  if (FOCUS[en]){
+    if (!pinned){
+      hint.innerHTML = `<b>${FOCUS[en].zh}</b>点击查看详情 ▸`;
+      hint.style.display = 'block';
+      hoverRegion = false;
+      card.style.display = 'none';
+    }
+  } else {
+    const rc = D.reg[en];
+    if (rc){ hint.style.display = 'none'; openHoverRegion(rc); }
+  }
+});
+chart.on('mouseout', p => {
+  if (!pinned && p.componentType === 'geo' && !FOCUS[p.name]) card.style.display = 'none';
+});
+chart.getZr().on('globalout', () => {
+  hint.style.display = 'none';
+  if (!pinned) card.style.display = 'none';
+});
+chart.getZr().on('click', e => { if (!e.target) closeCard(); });
+
+addEventListener('mousemove', e => {
+  if (hint.style.display === 'block'){
+    let hx = e.clientX + 16, hy = e.clientY + 18;
+    if (hx + hint.offsetWidth > innerWidth - 8) hx = e.clientX - hint.offsetWidth - 12;
+    hint.style.left = hx + 'px'; hint.style.top = hy + 'px';
+  }
+  if (hoverRegion && !pinned) place(e.clientX, e.clientY);
+}, true);
+
+addEventListener('keydown', e => { if (e.key === 'Escape') closeCard(); });
+addEventListener('resize', () => { chart.resize(); fitMap(); });
+</script>
+</body>
+</html>
