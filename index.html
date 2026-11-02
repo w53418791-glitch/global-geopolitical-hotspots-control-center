@@ -6,78 +6,84 @@
 <title>全球政经洞察总控台</title>
 <style>
   :root{
-    --bg:#F7F5F0; --panel:#FFFFFF; --ink:#1F2933; --muted:#5F6B76; --line:#E4E1D8;
-    --accent:#9E1B1E;
+    --paper:#F6F4EE; --panel:#FFFFFF; --ink:#22252B; --muted:#6B7280; --line:#DFDBD0;
+    --hairline:#C9C4B6; --accent:#8E1F24; --navy:#1F3448;
   }
   html{font-size:17px;}
   *{box-sizing:border-box; margin:0; padding:0;}
   html,body{height:100%;}
   body{font-family:"Microsoft YaHei UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
-       background:var(--bg); color:var(--ink); overflow:hidden; position:relative;
+       background:var(--paper); color:var(--ink); overflow:hidden; position:relative;
        display:flex; flex-direction:column;}
 
-  .hdr{display:flex; align-items:center; justify-content:space-between;
-       padding:0.8rem 1.6rem 0.55rem; flex:none; gap:1rem;}
-  .hdr h1{font-size:1.5rem; font-weight:700; letter-spacing:.14em; color:var(--accent);}
-  .hdr .sub{font-size:.8rem; color:var(--muted); margin-top:.3rem; letter-spacing:.04em;}
+  .hdr{flex:none; padding:0.85rem 1.7rem 0.6rem; border-bottom:3px double var(--hairline);
+       display:flex; align-items:flex-end; justify-content:space-between; gap:1rem;}
+  .hdr h1{font-family:Georgia,"Times New Roman","SimSun",serif; font-size:1.45rem; font-weight:700;
+          letter-spacing:.16em; color:var(--accent);}
+  .hdr .sub{font-size:.74rem; color:var(--muted); margin-top:.35rem; letter-spacing:.12em;}
+  .hdr .sub .en{font-family:Georgia,serif; letter-spacing:.22em; margin-right:.6em;}
 
-  .fsctl{display:flex; align-items:center; gap:.35rem; background:rgba(255,255,255,.93);
-         border:1px solid var(--line); border-radius:999px; padding:.22rem .5rem; flex:none;
-         box-shadow:0 1px 4px rgba(31,41,51,.08);}
-  .fsctl button{font:bold 1rem/1 "Segoe UI",system-ui,sans-serif; color:var(--ink); background:#F1EFE8;
-                border:1px solid var(--line); border-radius:999px; width:1.7rem; height:1.7rem;
+  .fsctl{display:flex; align-items:center; gap:.3rem; border:1px solid var(--line); border-radius:6px;
+         padding:.18rem .4rem; background:var(--panel); flex:none;}
+  .fsctl button{font:bold .95rem/1 "Segoe UI",system-ui,sans-serif; color:var(--ink); background:#F1EFE8;
+                border:1px solid var(--line); border-radius:5px; width:1.6rem; height:1.6rem;
                 cursor:pointer; display:flex; align-items:center; justify-content:center;}
   .fsctl button:hover{background:var(--accent); color:#fff; border-color:var(--accent);}
-  .fsctl .pct{font-size:.75rem; color:var(--muted); min-width:3.2em; text-align:center;}
+  .fsctl .pct{font-size:.72rem; color:var(--muted); min-width:3.1em; text-align:center;}
 
-  .strip{display:flex; flex-wrap:wrap; gap:.5rem .6rem; padding:0 1.6rem .7rem; flex:none;}
-  .rc{background:rgba(255,255,255,.95); border:1px solid var(--line); border-radius:10px;
-      padding:.55rem .85rem; font-size:.85rem; display:flex; align-items:center; gap:.55rem;
-      box-shadow:0 1px 4px rgba(31,41,51,.06);
-      width:calc((100% - 1.2rem) / 3);}
-  .rc .sw{width:.95rem; height:.95rem; border-radius:4px; border:1px solid rgba(31,41,51,.16); flex:none;}
-  .rc .nm{font-weight:700; flex:none; font-size:.9rem;}
-  .rc .ct{color:var(--muted); font-size:.76rem; line-height:1.35; min-width:0;}
-  .rc .ct i{font-style:normal; color:var(--accent); font-weight:700;}
+  .strip{display:flex; flex-wrap:wrap; gap:.45rem .55rem; padding:.6rem 1.7rem .65rem; flex:none;}
+  .rc{background:var(--panel); border:1px solid var(--line); border-left:4px solid var(--rc,#999);
+      border-radius:6px; padding:.5rem .75rem .45rem; display:flex; flex-direction:column; gap:.14rem;
+      box-shadow:0 1px 3px rgba(31,41,51,.05); width:calc((100% - 1.1rem) / 3); position:relative;}
+  .rc .top{display:flex; align-items:baseline; gap:.5rem;}
+  .rc .nm{font-weight:700; font-size:.92rem; color:var(--navy);}
+  .rc .en{font-family:Georgia,serif; font-size:.56rem; letter-spacing:.16em; color:var(--muted);}
+  .rc .ct{color:var(--muted); font-size:.72rem; line-height:1.4;}
+  .rc .ct i{font-style:normal; color:var(--accent); font-weight:700; font-family:Georgia,serif;}
 
   #map{flex:1 1 auto; min-height:0; position:relative; z-index:1;}
 
-  #hint{position:absolute; z-index:15; background:rgba(31,41,51,.92); color:#fff; font-size:.82rem;
-        padding:.3rem .75rem; border-radius:999px; pointer-events:none; display:none; white-space:nowrap;
-        letter-spacing:.03em;}
+  #hint{position:absolute; z-index:15; background:rgba(31,52,72,.94); color:#fff; font-size:.8rem;
+        padding:.28rem .7rem; border-radius:4px; pointer-events:none; display:none; white-space:nowrap;
+        letter-spacing:.03em; border-left:3px solid var(--accent);}
   #hint b{font-weight:700; margin-right:.35rem;}
 
-  #card{position:absolute; z-index:20; width:23.5rem; background:#FFFFFF; border:1px solid var(--line);
-        border-radius:12px; box-shadow:0 10px 32px rgba(31,41,51,.20); padding:1rem 1.05rem .9rem;
-        display:none; font-size:.92rem; line-height:1.68; cursor:default;}
+  #card{position:absolute; z-index:20; width:24rem; background:var(--panel); border:1px solid var(--line);
+        border-top:3px solid var(--accent); border-radius:0 0 8px 8px;
+        box-shadow:0 12px 36px rgba(31,41,51,.22); padding:.95rem 1.05rem .85rem;
+        display:none; font-size:.9rem; line-height:1.66; cursor:default;}
   #card .k{display:flex; align-items:baseline; gap:.55rem; border-bottom:1px solid var(--line);
-           padding-bottom:.6rem; margin-bottom:.6rem; padding-right:1.8rem;}
-  #card .k .zh{font-size:1.25rem; font-weight:700;}
-  #card .k .en{font-size:.75rem; color:var(--muted); flex:1;}
-  #card .k .tag{font-size:.72rem; color:#fff; padding:.12rem .55rem; border-radius:999px; white-space:nowrap;}
-  #card .x{position:absolute; top:.6rem; right:.75rem; font-size:1.05rem; color:#9AA3AC; cursor:pointer;
+           padding-bottom:.55rem; margin-bottom:.55rem; padding-right:1.7rem;}
+  #card .k .zh{font-family:Georgia,"SimSun",serif; font-size:1.28rem; font-weight:700; color:var(--navy);}
+  #card .k .en{font-family:Georgia,serif; font-size:.68rem; letter-spacing:.08em; color:var(--muted); flex:1;}
+  #card .k .tag{font-size:.66rem; color:#fff; padding:.14rem .5rem; border-radius:3px; white-space:nowrap;
+                letter-spacing:.06em;}
+  #card .x{position:absolute; top:.5rem; right:.6rem; font-size:1rem; color:#9AA3AC; cursor:pointer;
            line-height:1; padding:.25rem; user-select:none;}
   #card .x:hover{color:var(--accent);}
-  #card .row{margin-bottom:.5rem; color:var(--ink);}
-  #card .row b{color:var(--muted); font-weight:600; margin-right:.5rem; font-size:.84rem;}
-  #card .lnk{margin-top:.65rem; border-top:1px dashed var(--line); padding-top:.6rem; display:flex;
-             flex-direction:column; gap:.5rem;}
-  #card a{color:#1D5FA8; text-decoration:none; display:flex; gap:.45rem; align-items:baseline; font-size:.92rem;}
+  #card .row{margin-bottom:.45rem; color:var(--ink);}
+  #card .row b{color:var(--muted); font-weight:600; margin-right:.5rem; font-size:.78rem;
+               letter-spacing:.08em;}
+  #card .lnk{margin-top:.6rem; border-top:1px solid var(--line); padding-top:.55rem; display:flex;
+             flex-direction:column; gap:.42rem;}
+  #card a{color:#1D5FA8; text-decoration:none; display:flex; gap:.45rem; align-items:baseline; font-size:.88rem;}
+  #card a::before{content:"▸"; color:var(--accent); font-size:.75rem;}
   #card a:hover{text-decoration:underline;}
-  #card .dead{color:#9AA3AC; display:flex; gap:.45rem; align-items:baseline;}
-  #card .dead .st{font-size:.72rem; color:#B08900; white-space:nowrap;}
-  #card .note{color:var(--muted); font-size:.85rem;}
-  #card .sec{font-size:.78rem; color:var(--muted); font-weight:600; margin:.55rem 0 .3rem;}
-  #card .chips{display:flex; flex-wrap:wrap; gap:.35rem;}
-  #card .chip{font-size:.75rem; padding:.12rem .6rem; border-radius:999px; background:#F1EFE8;
-              color:#444441; border:1px solid #E4E1D8;}
+  #card .dead{color:#9AA3AC; display:flex; gap:.45rem; align-items:baseline; font-size:.88rem;}
+  #card .dead::before{content:"▸"; color:#C8C4B8; font-size:.75rem;}
+  #card .dead .st{font-size:.68rem; color:#8E6B1F; white-space:nowrap;}
+  #card .note{color:var(--muted); font-size:.82rem;}
+  #card .sec{font-size:.7rem; color:var(--muted); font-weight:600; margin:.5rem 0 .3rem; letter-spacing:.1em;}
+  #card .chips{display:flex; flex-wrap:wrap; gap:.3rem;}
+  #card .chip{font-size:.72rem; padding:.1rem .55rem; border-radius:3px; background:#F1EFE8;
+              color:#4A4E57; border:1px solid var(--line);}
 </style>
 </head>
 <body>
 <div class="hdr">
   <div class="brand">
     <h1>全球政经洞察总控台</h1>
-    <div class="sub">GLOBAL GEOPOLITICAL INSIGHT CONSOLE · 点击重点国查看洞察详情 · 悬停任意区域查看区域热点 · 灰色=未覆盖方向</div>
+    <div class="sub"><span class="en">GLOBAL GEOPOLITICAL INSIGHT CONSOLE</span>点击重点国查看洞察详情 · 悬停任意区域查看区域热点 · 灰色为未覆盖方向</div>
   </div>
   <div class="fsctl">
     <button id="fsMinus" title="缩小界面文字">A−</button>
@@ -130,8 +136,8 @@ const regions = Object.entries(D.reg).map(([name, rc]) => {
   const isFocus = FOCUS.hasOwnProperty(name);
   return {
     name,
-    itemStyle: { areaColor: isFocus ? m.deep : m.fill, borderColor:'#FFFFFF', borderWidth: isFocus?1:0.6 },
-    emphasis: { itemStyle: { areaColor: isFocus ? shade(m.deep) : m.deep, borderColor:'#1F2933', borderWidth:1.2 } }
+    itemStyle: { areaColor: isFocus ? m.deep : m.fill, borderColor:'#F6F4EE', borderWidth: isFocus?0.8:0.5 },
+    emphasis: { itemStyle: { areaColor: isFocus ? shade(m.deep) : m.deep, borderColor:'#22252B', borderWidth:1 } }
   };
 });
 
@@ -159,8 +165,8 @@ const regionHot = {
 };
 
 const labelOpt = fs => ({
-  show:true, fontSize:fs, color:'#2A3441', fontWeight:600, formatter: p => zhOf(p.name),
-  textBorderColor:'#FFFFFF', textBorderWidth:2.5
+  show:true, fontSize:fs, color:'#22252B', fontWeight:600, formatter: p => zhOf(p.name),
+  textBorderColor:'#F6F4EE', textBorderWidth:2.2
 });
 function currentLabelSize(){
   const opt = chart.getOption();
@@ -170,7 +176,7 @@ function currentLabelSize(){
 function updateLabels(){
   const ls = currentLabelSize();
   chart.setOption({ geo:{ label: labelOpt(ls),
-                          emphasis:{ label: Object.assign(labelOpt(ls+1), {fontWeight:700, color:'#1F2933'}) } } });
+                          emphasis:{ label: Object.assign(labelOpt(ls+1), {fontWeight:700}) } } });
 }
 
 chart.setOption({
@@ -178,17 +184,17 @@ chart.setOption({
     map:'world', roam:true, zoom:1.15, center:[160,22], silent:false,
     scaleLimit:{min:0.9, max:12},
     layoutCenter:['50%','50%'],
-    itemStyle:{ areaColor:'#EFEEE8', borderColor:'#FFFFFF', borderWidth:0.6 },
+    itemStyle:{ areaColor:'#EDEBE4', borderColor:'#F6F4EE', borderWidth:0.5 },
     label: labelOpt(LABEL_BASE),
-    emphasis:{ itemStyle:{ areaColor:'#D3D1C7' },
-               label: Object.assign(labelOpt(LABEL_BASE+1), {fontWeight:700, color:'#1F2933'}) },
+    emphasis:{ itemStyle:{ areaColor:'#D8D4C8' },
+               label: Object.assign(labelOpt(LABEL_BASE+1), {fontWeight:700}) },
     regions,
   },
   series: [{
     type:'scatter', coordinateSystem:'geo',
     data:[{name:'Singapore', value:[103.85,1.29], zh:'新加坡'}],
     symbolSize:10,
-    itemStyle:{ color: RM.AS.deep, borderColor:'#085041', borderWidth:1.2 },
+    itemStyle:{ color: RM.AS.deep, borderColor:'#123B2C', borderWidth:1.2 },
     emphasis:{ scale:1.5 },
     tooltip:{show:false}, zlevel:2,
   }],
@@ -212,9 +218,9 @@ chart.on('georoam', () => {
 const side = document.getElementById('side');
 side.innerHTML = ['US','EU','RU','ME','AS','LA'].map(c => {
   const r = regionInsights[c];
-  return `<div class="rc"><span class="sw" style="background:${RM[c].deep}"></span>
-    <span class="nm">${RM[c].zh}</span>
-    <span class="ct"><i>${r.n}</i> 项洞察 · ${r.note}</span></div>`;
+  return `<div class="rc" style="--rc:${RM[c].deep}">
+    <div class="top"><span class="nm">${RM[c].zh}</span><span class="en">${RM[c].en || ''}</span></div>
+    <div class="ct"><i>${r.n}</i> 项洞察 · ${r.note}</div></div>`;
 }).join('');
 
 const card = document.getElementById('card');
@@ -237,12 +243,12 @@ function closeCard(){ pinned = false; card.style.display = 'none'; }
 function countryCardHTML(en){
   const f = FOCUS[en]; const m = RM[f.region];
   const links = f.links.map(([t,u]) =>
-    u ? `<a href="${u}" target="_blank" rel="noopener">▸ ${t}</a>`
-      : `<span class="dead">▸ ${t}<span class="st">待上线</span></span>`
+    u ? `<a href="${u}" target="_blank" rel="noopener">${t}</a>`
+      : `<span class="dead">${t}<span class="st">待上线</span></span>`
   ).join('');
   return `
     <span class="x" title="关闭">✕</span>
-    <div class="k"><span class="zh">${f.zh}</span><span class="en">${en}</span>
+    <div class="k"><span class="zh">${f.zh}</span><span class="en">${en.toUpperCase()}</span>
       <span class="tag" style="background:${m.deep};">${m.zh}</span></div>
     <div class="row"><b>政治体制</b>${f.sys}</div>
     <div class="row"><b>近期热点</b>${f.hot}</div>
@@ -252,7 +258,7 @@ function regionCardHTML(rc){
   const m = RM[rc]; const r = regionInsights[rc] || {n:0, note:''};
   return `
     <span class="x" title="关闭">✕</span>
-    <div class="k"><span class="zh">${m.zh}</span><span class="en">REGION</span></div>
+    <div class="k"><span class="zh">${m.zh}</span><span class="en">${(m.en || 'REGION')}</span></div>
     <div class="row"><b>区域热点</b>${regionHot[rc] || '待接入'}</div>
     <div class="row"><b>洞察存量</b>${r.n} 项 · ${r.note}</div>
     <div class="sec">方向内重点国家</div>
